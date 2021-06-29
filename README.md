@@ -1,4 +1,4 @@
-# How To Create a Type-Safe Implicit Pick
+#  How To Create a Type-Safe Implicit Pick
 
 This article discusses the implementation of an implicit pick, the reason for it & what makes it special.
 
@@ -16,6 +16,7 @@ In these cases, what we really want is a `Pick`ed object - an object with the pr
 
 Pick is perfect, it gives us the exact strict type that we want, however (as shown) it is very verbose.
 ![Example of Pick](https://raw.githubusercontent.com/Prithpal-Sooriya/ts-implicit-pick/main/images/PickExample.png)
+
 For each prop we want, we need to write it for the `type` as well as for the object.
 For small objects, this might not be much of an issue - however this can become very large the more props we want.
 
