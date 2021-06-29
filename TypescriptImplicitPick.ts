@@ -1,4 +1,4 @@
-//#region example interface
+//#region Setup - Example Interface and consuming function.
 interface Product {
   id: string;
   price: number;
@@ -8,6 +8,7 @@ interface Product {
   date: Date;
   category: string;
 }
+declare const someStringConsumingFunction: (str: string) => void;
 //#endregion
 
 //#region Example of Partial
@@ -19,6 +20,10 @@ interface Product {
 const partialExample: Partial<Product> = { id: "1", name: "Bread" };
 type PartialExampleType = typeof partialExample; // { id?: string, name?: string, ...} / Still a Partial<Product>
 type PartialExamplePropType = typeof partialExample.id; // string | undefined
+
+// Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+// @ts-expect-error
+someStringConsumingFunction(partialExample.name);
 //#endregion
 
 //#region Example of Pick
@@ -39,6 +44,7 @@ const pickExample: PickedProps = {
 };
 type PickExampleType = typeof pickExample; // { id: string, price: number, name: string, category: string }
 type PickExamplePropType = typeof pickExample.name; // string
+someStringConsumingFunction(pickExample.name);
 //#endregion
 
 //#region Implicit Pick Version 1
@@ -64,6 +70,7 @@ const implicitPickVer1 = implicitProductPickVer1({
 });
 type ImplicitPickVer1Type = typeof implicitPickVer1; // { id: string, price: number, name: string, category: string }
 type ImplicitPickVer1PropType = typeof implicitPickVer1.name; // string
+someStringConsumingFunction(implicitPickVer1.name);
 //#endregion
 
 //#region Implicit Pick Version 2 - with auto completion!
@@ -74,16 +81,19 @@ type ImplicitPickVer1PropType = typeof implicitPickVer1.name; // string
  * The partial allows the consumer to pass in props & provide the auto complete.
  * Intersecting it will reduce the type/make the type specific (only the types shared between two types are used)
  */
-const buildImplicitPickVer2 =
+const buildImplicitPick =
   <T>() =>
   <K extends keyof T>(props: Partial<T> & Pick<T, K>): Pick<T, K> =>
     props;
 
-const implicitProductPickVer2 = buildImplicitPickVer2<Product>();
-const implicitPickVer2 = implicitProductPickVer2({
+const buildProduct = buildImplicitPick<Product>();
+const pickedProduct = buildProduct({
   id: "1",
   price: 5.0,
   name: "bread",
   category: "Bakery & Cakes",
 });
+type PickedProduct = typeof pickedProduct; // { id: string, price: number, name: string, category: string }
+type PickedProcuctPropType = typeof pickedProduct.name; // string
+someStringConsumingFunction(pickedProduct.name);
 //#endregion
