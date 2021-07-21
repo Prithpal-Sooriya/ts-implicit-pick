@@ -1,4 +1,4 @@
-# How to Correctly Type React DefaultProps.
+# How to Correctly Type React DefaultProps
 
 **TAGS**: TypeScript, React, Components, Default Props, Bugs
 
@@ -45,7 +45,7 @@ const testProps: ListProps = {
 
 Some new logic was added to one of these components that inherited the List component.
 
-Everything was working as expected until we hit our **_favourite_** runtime error:\
+Everything was working as expected until we hit our **_favourite_** runtime error:
 `Cannot read property 'length' of undefined`
 
 But why?? Everything was strictly typed, how did this fall through?
@@ -56,7 +56,7 @@ It turned out this new logic could potentially return an undefined list of items
 
 The type `ListProps` for our component is NOT the true & final prop types when we are instantiating the new JSX List element. It merges the props we provide it at the start (the `extends React.Component<ListProps>`) with the `typeof defaultProps`.
 
-Here it is in the [DefinitelyTyped repo](https://github.com/DefinitelyTyped/DefinitelyTyped/blob/ca8eefc03c4553f3bda93b4ab33a3e504f18cfb4/types/react/v16/index.d.ts#L3027), but a simplified version is shown below:
+Here it is in the [DefinitelyTyped repo](https://github.com/DefinitelyTyped/DefinitelyTyped/blob/ca8eefc03c4553f3bda93b4ab33a3e504f18cfb4/types/react/v16/index.d.ts#L3027) (see `Defaultize` type), but a simplified version is shown below:
 
 ```ts
 // simplified version of the DefinitelyTyped - Defaultize utility
@@ -85,12 +85,13 @@ type Identity2 = Partial<ListProps> extends FinalProps ? true : false;
 type IdentityProof = Identity1 & Identity2;
 ```
 
-So our final props are optional/`Partial`. You can even see via IntelliSense:\
+So our final props are optional/`Partial`. You can even see the incorrect typings via IntelliSense:
 ![JSX Component where props have become partial](https://raw.githubusercontent.com/Prithpal-Sooriya/ts-implicit-pick/main/images/PartialDefaultPropTypes.png)
 
 This is also the reason why we didn't see this in our tests - we were relying too much on our exported `ListProps` type, when in actuality we should have tested with this merged type to cover these missed test cases!
 
-Whats worse is that this pattern was used in a lot of other legacy class components. What are we going to do 😬😬😬?
+**Whats worse is that this pattern was used in a lot of other legacy class components**.  
+What are we going to do 😬😬😬?
 
 ## Fixing our Default Props!
 
@@ -127,18 +128,20 @@ const defaultListProps = buildImplicitPick<ListProps>();
 static defaultProps = defaultListProps({/* yay Typesafety, IntelliSense & Refactoring */})
 ```
 
-See my related article for more information\
-https://dev.to/prithpalsooriya/how-to-create-a-type-safe-implicit-pick-2jpa
-
 ## Conclusion
 
-TypeScript is super powerful and can resolve most mistakes that could appear are runtime right as your are typing - a very small feedback loop!\
-However bad types & relying too much on strict, predefined types can blindside us/introduce type holes where we lose our type safety.
+TypeScript is super powerful and can resolve most mistakes that could appear are runtime right as your are typing - a very small feedback loop!
+**However bad types & relying too much on strict, predefined types can blindside us/introduce type holes where we lose our type safety.**
 
-It was understandable why this happened on these legacy components, since it was also our first time using TypeScript.\
+It was understandable why this happened on these legacy components, since it was also our first time using TypeScript.
 In the future we can mitigate the above by spending time to ensure that the type we get/want to use is correct & even introduce type tests to validate our types.
 
-Here is a Code Sandbox Link to show the problems and solutions mentioned.\
-https://codesandbox.io/s/xenodochial-framework-tq7dx?file=/src/App.tsx
-
 Now back to fixing these new TS errors 🙃.
+
+## Resources
+
+- CodeSandbox link to show the problems and solutions mentioned.
+  https://codesandbox.io/s/xenodochial-framework-tq7dx?file=/src/App.tsx
+
+- Link to my article that explains the type safe implicit pick utility.
+  {% link https://dev.to/prithpalsooriya/how-to-create-a-type-safe-implicit-pick-2jpa %}
